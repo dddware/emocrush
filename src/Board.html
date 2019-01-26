@@ -1,0 +1,80 @@
+<div class="board">
+  {#each board as row, y}
+    <div class="row">
+      {#each row as cell, x}
+        <div
+          class="cell"
+          class:selected="selected !== null && x === selected.x && y === selected.y"
+          on:click="targetCell(x, y)"
+        >{cell}</div>
+      {/each}
+    </div>
+  {/each}
+</div>
+
+<script>
+import generateBoard from "./generateBoard";
+import isAdjacent from "./isAdjacent";
+import tryMove from "./tryMove";
+
+export default {
+  data() {
+    return {
+      board: [],
+      selected: null
+    };
+  },
+
+  methods: {
+    targetCell(x, y) {
+      const { selected, board, values } = this.get();
+      const cell = { x, y };
+
+      if (selected === null) {
+        this.set({ selected: cell });
+      } else {
+        if (isAdjacent(selected, cell)) {
+          this.set({ board: tryMove(board, selected, cell, values) });
+        }
+
+        this.set({ selected: null });
+      }
+    }
+  },
+
+  oncreate() {
+    const { values, width, height } = this.get();
+
+    this.set({ board: generateBoard(values, width, height) });
+  }
+};
+</script>
+
+<style>
+.board {
+  font-size: 2rem;
+}
+
+.cell {
+  display: inline-block;
+  width: 1.25em;
+  height: 1.25em;
+  border-style: solid;
+  border-color: black;
+  border-width: 0 1px 1px 0;
+  text-align: center;
+  cursor: pointer;
+}
+
+.cell.selected {
+  background-color: #999999;
+}
+
+.cell:first-child {
+  border-left-width: 1px;
+}
+
+.row:first-child .cell {
+  border-top-width: 1px;
+}
+</style>
